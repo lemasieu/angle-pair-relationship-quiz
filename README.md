@@ -1,8 +1,10 @@
 # angle-pair-relationship-quiz
-This is an interactive educational tool built with p5.js that helps users learn and test their understanding of angle pair relationships (e.g., alternate interior, corresponding, alternate exterior, etc.) when a transversal intersects two parallel lines. The application generates random diagrams and quizzes users on identifying the correct angle pair relationships.</br></br>
-Demo: https://xn--msiu-goa8b.vn/github/angle-pair-relationship-quiz/</br>
+This is an interactive educational tool built with p5.js that helps users learn and test their understanding of angle pair relationships (e.g., alternate interior, corresponding, alternate exterior, etc.) when a transversal intersects two parallel lines. The application generates random diagrams and quizzes users on identifying the correct angle pair relationships.
 
-Features</br>
+*Demo*
+https://xn--msiu-goa8b.vn/github/angle-pair-relationship-quiz/</br>
+
+*Features*
 
 Randomly generates parallel lines and a transversal with labeled intersection points (P and Q).</br>
 Highlights angle pairs with red arcs for visual identification.</br>
@@ -11,12 +13,12 @@ Supports English and Vietnamese language toggling.</br>
 Includes a dark theme option.</br>
 Tracks user progress with accuracy statistics.</br>
 
-Prerequisites</br>
+*Prerequisites*
 
 A web browser with JavaScript support (e.g., Chrome, Firefox, Safari).</br>
 p5.js library (included via CDN in the code).</br>
 
-Usage</br>
+*Usage*
 
 The quiz starts automatically with a randomly generated diagram.</br>
 Click on the multiple-choice buttons to select an answer.</br>
@@ -26,19 +28,19 @@ Toggle between dark theme and light theme using the "Dark Theme" button.</br>
 Switch languages (English/Vietnamese) using the language toggle button.</br>
 View your progress (correct answers, total attempts, accuracy) at the top.</br>
 
-Project Structure</br>
+*Project Structure*
 
 index.html: The main HTML file that loads the p5.js sketch.</br>
 quiz.js: Contains the JavaScript code for the quiz logic and p5.js sketch.</br>
 style.css: Styles for the user interface (optional, can be customized).</br>
 
-How It Works</br>
+*How It Works*
 
 The application uses p5.js to draw two parallel lines and a transversal, labeling angles at intersection points P and Q with indices (0, 1, 2, 3).</br>
 Angle pairs are defined based on geometric relationships (e.g., alternate interior, corresponding) and randomly selected for quizzing.</br>
 User interactions are handled via button clicks, with feedback and statistics updated dynamically.</br>
 
-Contributing</br>
+*Contributing*
 
 Contributions are welcome! To contribute:</br>
 Fork the repository.</br>
@@ -47,11 +49,26 @@ Make your changes and commit them (git commit -m "Add new feature").</br>
 Push to the branch (git push origin feature-branch).</br>
 Open a pull request with a description of your changes.</br>
 
-License</br>
+*License*
 
 This project is licensed under the MIT License. Feel free to use, modify, and distribute it as per the license terms.</br>
 
-Acknowledgments</br>
+*Acknowledgments*
 
 Built using p5.js, a JavaScript library for creative coding.</br>
 Inspired by educational tools for geometry learning.</br>
+
+
+## New Features
+
+- **Noise Lines (Distraction Lines):**  
+  In each new question, 1–2 orange "noise lines" are randomly generated across the canvas.  
+  These lines act as distractions and will **disappear immediately after the user submits an answer**.
+
+- **Intersection Points:**  
+  Where noise lines intersect with the main parallel lines or the transversal, **white points with black borders** are drawn — identical to the representation of P and Q.
+
+- **Answer Locking:**  
+  After answering, all choice buttons are **disabled** until a new question is generated.  
+  This prevents multiple submissions on the same question.
+

@@ -1,6 +1,7 @@
 let stats = { correct: 0, total: 0 };
 let currentPair = null, currentType = null;
 let lang = 'en'; // 'en' or 'vi'
+let noiseLines = []; // chứa các đường gây nhiễu
 
 const labels = {
   en: {
@@ -82,7 +83,6 @@ function updateLangUI() {
   document.getElementById('newQuestionBtn').innerText = labels[lang].newQuestion;
   document.getElementById('toggleThemeBtn').innerText = labels[lang].toggleTheme;
   document.getElementById('toggleLangBtn').innerText = labels[lang].toggleLang;
-  // Cập nhật lại các lựa chọn
   let chDiv = document.getElementById('choices');
   let buttons = chDiv.querySelectorAll('button');
   buttons.forEach(btn => {
@@ -100,8 +100,27 @@ function generateQuestion() {
   currentType = random(typeKeys);
   currentPair = random(pairsByType[currentType]);
   window._geom = geom;
+
+  // reset noise lines (1–2 lines)
+  noiseLines = [];
+  let numNoise = int(random(1, 3));
+  for (let i = 0; i < numNoise; i++) {
+    let cx = random(width);
+    let cy = random(height);
+    let angle = random(TWO_PI);
+    let dir = createVector(cos(angle), sin(angle));
+    let len = max(width, height) * 2;
+    noiseLines.push({
+      x1: cx - dir.x * len,
+      y1: cy - dir.y * len,
+      x2: cx + dir.x * len,
+      y2: cy + dir.y * len
+    });
+  }
+
   redraw();
   document.getElementById('question').innerHTML = labels[lang].question;
+
   let chDiv = document.getElementById('choices');
   chDiv.innerHTML = '';
   let shuffled = shuffle([...answerTypes]);
@@ -109,9 +128,11 @@ function generateQuestion() {
     let btn = document.createElement('button');
     btn.innerText = labels[lang].choices[t.key];
     btn.dataset.key = t.key;
+    btn.disabled = false;   // bật lại khi có câu hỏi mới
     btn.onclick = () => checkAnswer(t.key);
     chDiv.appendChild(btn);
   });
+
   updateStats();
 }
 
@@ -126,6 +147,14 @@ function checkAnswer(selectedKey) {
   }
   document.getElementById('newQuestionBtn').disabled = false;
   updateStats();
+
+  // --- xóa noise sau khi trả lời ---
+  noiseLines = [];
+  redraw();
+
+  // --- disable tất cả nút lựa chọn ---
+  let buttons = document.getElementById('choices').querySelectorAll('button');
+  buttons.forEach(btn => btn.disabled = true);
 }
 
 document.getElementById('newQuestionBtn').onclick = generateQuestion;
@@ -161,17 +190,20 @@ function randomParallelCut() {
   return { A, B, dx, dy, P, Q, cutDir, theta, phi };
 }
 
-/**
- * Hàm mới được sửa để xác định vị trí các góc một cách nhất quán cho cả P và Q.
- * @param {p5.Vector} center Điểm trung tâm (P hoặc Q).
- * @param {object} geom Đối tượng hình học chứa các vector đường thẳng.
- * @returns {Array} Mảng các đối tượng góc đã được đánh số nhất quán.
- */
-function getAnglePositionsForPoint(center, geom) {
-  let vecS = createVector(geom.dx, geom.dy).normalize(); // Vector đường song song
-  let vecC = geom.cutDir.normalize();              // Vector đường chéo
+// =================== MATH: Intersection ===================
+function lineIntersection(x1,y1,x2,y2, x3,y3,x4,y4) {
+  let denom = (x1-x2)*(y3-y4) - (y1-y2)*(x3-x4);
+  if (abs(denom) < 1e-6) return null;
+  let px = ((x1*y2 - y1*x2)*(x3-x4) - (x1-x2)*(x3*y4 - y3*x4)) / denom;
+  let py = ((x1*y2 - y1*x2)*(y3-y4) - (y1-y2)*(x3*y4 - y3*x4)) / denom;
+  if (px < 0 || px > width || py < 0 || py > height) return null;
+  return createVector(px, py);
+}
 
-  // Vector pháp tuyến cho đường song song và đường chéo để xác định vị trí tương đối (trên/dưới, trái/phải)
+// =================== ANGLE POSITIONS ===================
+function getAnglePositionsForPoint(center, geom) {
+  let vecS = createVector(geom.dx, geom.dy).normalize();
+  let vecC = geom.cutDir.normalize();
   let perpS = createVector(-vecS.y, vecS.x);
   let perpC = createVector(-vecC.y, vecC.x);
 
@@ -185,7 +217,6 @@ function getAnglePositionsForPoint(center, geom) {
   let arr = [];
   let r = 32;
 
-  // Lặp qua các cặp tia và gán chỉ số dựa trên vị trí tương đối của góc
   for (let pair of rayPairs) {
     let u1 = pair.u1.normalize();
     let u2 = pair.u2.normalize();
@@ -193,20 +224,18 @@ function getAnglePositionsForPoint(center, geom) {
     let ang1 = atan2(u1.y, u1.x);
     let ang2 = atan2(u2.y, u2.x);
     let pos = center.copy().add(bisector.mult(r));
-
-    // Dùng dot product để xác định vị trí góc một cách nhất quán, không bị hoán đổi
     let isAboveParallel = bisector.dot(perpS) > 0;
     let isRightOfTransversal = bisector.dot(perpC) > 0;
 
     let idx;
     if (isAboveParallel && !isRightOfTransversal) {
-      idx = 0; // Trên-trái
+      idx = 0;
     } else if (isAboveParallel && isRightOfTransversal) {
-      idx = 1; // Trên-phải
+      idx = 1;
     } else if (!isAboveParallel && isRightOfTransversal) {
-      idx = 2; // Dưới-phải
+      idx = 2;
     } else {
-      idx = 3; // Dưới-trái
+      idx = 3;
     }
 
     arr[idx] = { pos, idx, ang1, ang2 };
@@ -214,7 +243,6 @@ function getAnglePositionsForPoint(center, geom) {
   return arr;
 }
 
-// Hàm này giờ chỉ cần gọi hàm đã sửa cho cả P và Q
 function getAnglePositions(geom) {
   return {
     P: getAnglePositionsForPoint(geom.P, geom),
@@ -233,7 +261,6 @@ function getAllPairs(geom) {
     vert: []
   };
 
-  // Cặp góc cơ bản (P trước, Q sau)
   let basePairs = {
     alt_in: [
       { P: pos.P[1], Q: pos.Q[3], idxP: 1, idxQ: 3 },
@@ -262,12 +289,10 @@ function getAllPairs(geom) {
   for (let type in basePairs) {
     out[type] = [];
     for (let pair of basePairs[type]) {
-      // Đảm bảo P luôn đứng trước Q
       out[type].push({ P: pair.P, Q: pair.Q, idxP: pair.idxP, idxQ: pair.idxQ, at: 'PQ' });
     }
   }
 
-  // Góc đối đỉnh (vertical angles)
   out.vert.push({ P: pos.P[0], Q: pos.P[2], at: 'P' });
   out.vert.push({ P: pos.P[1], Q: pos.P[3], at: 'P' });
   out.vert.push({ P: pos.Q[0], Q: pos.Q[2], at: 'Q' });
@@ -281,6 +306,8 @@ function getAllPairs(geom) {
 function drawParallelCut() {
   let geom = window._geom;
   if (!geom) return;
+
+  // hai đường song song (xanh)
   strokeWeight(3);
   stroke(0, 180, 255);
   line(geom.A.x - 200*geom.dx, geom.A.y - 200*geom.dy,
@@ -288,18 +315,57 @@ function drawParallelCut() {
   stroke(0, 180, 255);
   line(geom.B.x - 200*geom.dx, geom.B.y - 200*geom.dy,
        geom.B.x + 200*geom.dx, geom.B.y + 200*geom.dy);
+
+  // đường cắt chính (cam)
   stroke(255, 140, 0);
+  strokeWeight(3);
   line(geom.P.x - 200*geom.cutDir.x, geom.P.y - 200*geom.cutDir.y,
        geom.P.x + 200*geom.cutDir.x, geom.P.y + 200*geom.cutDir.y);
+
+  // noise lines (mỗi phần vẽ tách style bằng push/pop để không bị "đen")
+  for (let ln of noiseLines) {
+    // line cam
+    push();
+    stroke(255, 140, 0, 200);
+    strokeWeight(3);
+    line(ln.x1, ln.y1, ln.x2, ln.y2);
+    pop();
+
+    // giao điểm với 3 đường chính
+    let ints = [];
+    ints.push(lineIntersection(
+      ln.x1, ln.y1, ln.x2, ln.y2,
+      geom.A.x - 200*geom.dx, geom.A.y - 200*geom.dy,
+      geom.A.x + 200*geom.dx, geom.A.y + 200*geom.dy
+    ));
+    ints.push(lineIntersection(
+      ln.x1, ln.y1, ln.x2, ln.y2,
+      geom.B.x - 200*geom.dx, geom.B.y - 200*geom.dy,
+      geom.B.x + 200*geom.dx, geom.B.y + 200*geom.dy
+    ));
+    ints.push(lineIntersection(
+      ln.x1, ln.y1, ln.x2, ln.y2,
+      geom.P.x - 200*geom.cutDir.x, geom.P.y - 200*geom.cutDir.y,
+      geom.P.x + 200*geom.cutDir.x, geom.P.y + 200*geom.cutDir.y
+    ));
+
+    // chấm trắng viền đen giống P, Q
+    push();
+    fill(255);
+    stroke(0);
+    strokeWeight(2);
+    for (let p of ints) {
+      if (p) ellipse(p.x, p.y, 12, 12);
+    }
+    pop();
+  }
+
+  // điểm P, Q
   fill(255); stroke(0); strokeWeight(2);
   ellipse(geom.P.x, geom.P.y, 12, 12);
   ellipse(geom.Q.x, geom.Q.y, 12, 12);
 
-  // Lấy vị trí các góc tại P và Q
-  let pos = getAnglePositions(geom);
-  let anglesP = pos.P;
-  let anglesQ = pos.Q;
-  
+  // highlight góc
   if (currentPair) {
     if (currentPair.at === 'PQ') {
       drawAngleArc(geom.P, currentPair.P);
@@ -318,8 +384,6 @@ function drawAngleArc(center, angleObj) {
   let r = 30;
   let ang1 = angleObj.ang1;
   let ang2 = angleObj.ang2;
-
-  // Điều chỉnh để luôn vẽ cung nhỏ nhất
   let delta = ang2 - ang1;
   if (abs(delta) > PI) {
     if (delta > 0) {
@@ -328,11 +392,9 @@ function drawAngleArc(center, angleObj) {
       ang2 += TWO_PI;
     }
   }
-  
   if (ang1 > ang2) {
     [ang1, ang2] = [ang2, ang1];
   }
-
   stroke('red');
   strokeWeight(3);
   noFill();
