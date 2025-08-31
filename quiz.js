@@ -316,17 +316,17 @@ function drawParallelCut() {
   line(geom.B.x - 200*geom.dx, geom.B.y - 200*geom.dy,
        geom.B.x + 200*geom.dx, geom.B.y + 200*geom.dy);
 
-  // đường cắt chính (cam)
-  stroke(255, 140, 0);
+  // đường cắt chính (vẫn xanh)
+  stroke(0, 180, 255);
   strokeWeight(3);
   line(geom.P.x - 200*geom.cutDir.x, geom.P.y - 200*geom.cutDir.y,
        geom.P.x + 200*geom.cutDir.x, geom.P.y + 200*geom.cutDir.y);
 
   // noise lines (mỗi phần vẽ tách style bằng push/pop để không bị "đen")
   for (let ln of noiseLines) {
-    // line cam
+    // line xanh
     push();
-    stroke(255, 140, 0, 200);
+    stroke(0, 180, 255, 200);
     strokeWeight(3);
     line(ln.x1, ln.y1, ln.x2, ln.y2);
     pop();
