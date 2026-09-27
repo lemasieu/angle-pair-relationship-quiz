@@ -1,74 +1,88 @@
-# angle-pair-relationship-quiz
-This is an interactive educational tool built with p5.js that helps users learn and test their understanding of angle pair relationships (e.g., alternate interior, corresponding, alternate exterior, etc.) when a transversal intersects two parallel lines. The application generates random diagrams and quizzes users on identifying the correct angle pair relationships.
+# Angle Pair Relationship Quiz
 
-## Demo
-https://xn--msiu-goa8b.vn/github/angle-pair-relationship-quiz/</br>
+An interactive geometry quiz application that helps students practice identifying angle pair relationships. The app randomly generates diagrams of parallel lines cut by a transversal and asks users to classify the relationship between two highlighted angles.
 
-## Features
+## 🚀 Live Demo
 
-Randomly generates parallel lines and a transversal with labeled intersection points (P and Q).</br>
-Highlights angle pairs with red arcs for visual identification.</br>
-Provides multiple-choice questions with feedback (correct/wrong answers).</br>
-Supports English and Vietnamese language toggling.</br>
-Includes a dark theme option.</br>
-Tracks user progress with accuracy statistics.</br>
+Check out the live demo: [https://www.sieu.io.vn/github/angle-pair-relationship-quiz](https://www.sieu.io.vn/github/angle-pair-relationship-quiz)
 
-## Prerequisites
+## ✨ Features
 
-A web browser with JavaScript support (e.g., Chrome, Firefox, Safari).</br>
-p5.js library (included via CDN in the code).</br>
+- **Randomly Generated Diagrams** – Each question displays a fresh diagram of two parallel lines intersected by a transversal, with two angles highlighted
+- **Multiple-Choice Questions** – Four answer options are provided for each question, covering common angle pair relationships
+- **Angle Relationship Types** – Practice classifying:
+  - Corresponding Angles
+  - Alternate Interior Angles
+  - Alternate Exterior Angles
+  - Consecutive (Same-Side) Interior Angles
+  - Vertical Angles
+  - Linear Pair
+- **Instant Feedback** – Users are informed immediately whether their selected answer is correct
+- **Score Tracking** – Keeps track of correct answers, total questions attempted, and accuracy percentage
+- **Clean Interface** – Simple, user-friendly design with a clear layout
+- **Responsive** – Works on desktop, tablet, and mobile devices
 
-## Usage
+## 🛠️ Technologies Used
 
-The quiz starts automatically with a randomly generated diagram.</br>
-Click on the multiple-choice buttons to select an answer.</br>
-Receive immediate feedback (green for correct, red for wrong).</br>
-Click "New Question" to generate a new diagram and question.</br>
-Toggle between dark theme and light theme using the "Dark Theme" button.</br>
-Switch languages (English/Vietnamese) using the language toggle button.</br>
-View your progress (correct answers, total attempts, accuracy) at the top.</br>
+- **HTML5** – Provides the interface structure
+- **CSS3** – Handles styling and layout
+- **JavaScript (Vanilla)** – Powers the quiz logic and diagram rendering
+- **HTML5 Canvas / SVG** – Used to draw the geometric diagrams (depending on your implementation)
 
-## Project Structure
+## 📁 Project Structure
 
-index.html: The main HTML file that loads the p5.js sketch.</br>
-quiz.js: Contains the JavaScript code for the quiz logic and p5.js sketch.</br>
-style.css: Styles for the user interface (optional, can be customized).</br>
+```
+angle-pair-relationship-quiz/
+├── index.html                # Main HTML file
+├── style.css                 # Stylesheet
+├── script.js                 # JavaScript quiz logic and diagram rendering
+└── README.md                 # Project documentation
+```
 
-## How It Works
+## 🔧 Installation & Usage
 
-The application uses p5.js to draw two parallel lines and a transversal, labeling angles at intersection points P and Q with indices (0, 1, 2, 3).</br>
-Angle pairs are defined based on geometric relationships (e.g., alternate interior, corresponding) and randomly selected for quizzing.</br>
-User interactions are handled via button clicks, with feedback and statistics updated dynamically.</br>
+1. **Clone the repository**
+   ```bash
+   git clone https://github.com/lemasieu/angle-pair-relationship-quiz.git
+   ```
+2. **Navigate to the project folder**   
+   ```bash
+   cd angle-pair-relationship-quiz
+   ```
+3. **Open the application**
+   - Simply open `index.html` in your web browser
+   - Or use a local development server (e.g., Live Server in VS Code)
 
-## Contributing
+## 📝 How It Works
 
-Contributions are welcome! To contribute:</br>
-Fork the repository.</br>
-Create a new branch (git checkout -b feature-branch).</br>
-Make your changes and commit them (git commit -m "Add new feature").</br>
-Push to the branch (git push origin feature-branch).</br>
-Open a pull request with a description of your changes.</br>
+1. **Start the quiz** – Click the start button to generate the first question
+2. **Observe the diagram** – A diagram shows two parallel lines cut by a transversal, with two angles highlighted
+3. **Read the question** – The question asks you to identify the relationship between the two highlighted angles
+4. **Choose an answer** – Select one of the four multiple-choice options
+5. **Submit your answer** – Click the check button to see if you are correct
+6. **View your score** – The score display shows:
+   - Number of correct answers
+   - Total number of questions attempted
+   - Accuracy percentage
+7. **Continue** – Click the "Next Question" button to generate a new random diagram and question
 
-## License
+**How questions are generated:**
 
-This project is licensed under the MIT License. Feel free to use, modify, and distribute it as per the license terms.</br>
+The quiz generator:
 
-## Acknowledgments
+- Randomly selects a pair of angles from the diagram (e.g., one interior and one exterior angle, or two interior angles on the same side)
+- Determines the correct relationship between the selected angles
+- Generates three plausible distractors from other angle relationship types
+- Displays the diagram with the selected angles highlighted and presents the four options
 
-Built using p5.js, a JavaScript library for creative coding.</br>
-Inspired by educational tools for geometry learning.</br>
+## 🤝 Contributing
 
+Contributions are welcome! Feel free to submit a Pull Request or open an Issue.
+1. Fork the repository
+2. Create your feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add some amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
 
-## New Features
-
-- **Noise Lines (Distraction Lines):**  
-  In each new question, 1–2 orange "noise lines" are randomly generated across the canvas.  
-  These lines act as distractions and will **disappear immediately after the user submits an answer**.
-
-- **Intersection Points:**  
-  Where noise lines intersect with the main parallel lines or the transversal, **white points with black borders** are drawn — identical to the representation of P and Q.
-
-- **Answer Locking:**  
-  After answering, all choice buttons are **disabled** until a new question is generated.  
-  This prevents multiple submissions on the same question.
-
+## 📄 License
+This project is open-source and available under the MIT License.
